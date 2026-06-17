@@ -2,11 +2,17 @@
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import React, { useState } from 'react';
-import { Smartphone, User, Mail, Compass, Award, Send, CheckCircle, ShieldAlert } from 'lucide-react';
 import { motion } from 'motion/react';
+import { ArrowLeft, CheckCircle2, Compass, Mail, Phone, Route, ShieldCheck, Sparkles, UserRound } from 'lucide-react';
 import localDB from '../services/localDB';
+
+const pathwayOptions = [
+  { value: 'study', label: 'تحصیلی' },
+  { value: 'work', label: 'کاری' },
+  { value: 'medical', label: 'پزشکی' },
+  { value: 'other', label: 'سایر' },
+] as const;
 
 export default function ConsultingForm() {
   const [name, setName] = useState('');
@@ -18,249 +24,177 @@ export default function ConsultingForm() {
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
-  const handleFormSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleFormSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
     setErrorMsg('');
     setIsSubmitting(true);
 
     if (!name || name.trim().length < 3) {
-      setErrorMsg('وارد کردن نام کامل الزامی است (حداقل ۳ کاراکتر)');
+      setErrorMsg('نام کامل را وارد کن.');
       setIsSubmitting(false);
       return;
     }
 
     if (!phoneNumber || phoneNumber.length < 10) {
-      setErrorMsg('شماره تلفن همراه نامعتبر است (۱۰ رقم بدون صفر)');
+      setErrorMsg('شماره موبایل معتبر نیست.');
       setIsSubmitting(false);
       return;
     }
 
     setTimeout(() => {
-      // Store in offline simulation DB
       localDB.submitConsultation({
         name,
         phone: phoneNumber,
         email: email || 'بدون ایمیل',
         pathway,
-        englishLevel
+        englishLevel,
       });
-
       setIsSubmitting(false);
       setSubmitSuccess(true);
-      
-      // Auto close success alert after 5 secs
+
       setTimeout(() => {
         setName('');
         setPhoneNumber('');
         setEmail('');
         setSubmitSuccess(false);
       }, 5000);
-
-    }, 1500);
+    }, 900);
   };
 
   return (
-    <motion.section 
-      id="consulting-section" 
-      initial={{ opacity: 0, y: 25 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-100px" }}
-      transition={{ type: "spring", damping: 30, stiffness: 100 }}
-      className="py-20 bg-zinc-50 border-t border-zinc-150 text-right font-sans select-none" 
-      dir="rtl"
-    >
-      <div className="max-w-5xl mx-auto px-4 sm:px-6">
-        
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-          
-          {/* Right Column - Presentation Copy */}
-          <motion.div 
-            initial={{ opacity: 0, x: 20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="lg:col-span-6 space-y-4"
-          >
-            <span className="text-[10px] text-zinc-450 font-extrabold uppercase tracking-wider block">پشتیبانی و هدایت مسیر مهاجرت</span>
-            <h2 className="text-lg md:text-xl font-bold text-zinc-900 tracking-tight leading-normal">
-              با مشاوران تراز اول آکادمی توآمریکا گفتگو کنید
-            </h2>
-            <p className="text-[11px] text-zinc-400 leading-relaxed font-semibold">
-              پیش از رزرو دوره‌ها، برای ارزیابی اوليه پرونده، هماهنگی بورد درمانی، و فهم الزامات مصاحبه سفارت، اطلاعات خود را وارد نمایید. کارشناسان ما اطلاعات علمی شما را پایش و بررسی خواهند کرد.
-            </p>
-
-            <div className="space-y-3 pt-2">
-              <div className="flex items-start gap-2.5 bg-white p-3.5 rounded-xl border border-zinc-200 w-full hover:border-zinc-300 transition-colors">
-                <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-                  <Award className="w-4 h-4" />
-                </div>
-                <div className="flex flex-col text-right">
-                  <span className="text-xs font-bold text-zinc-800">تحلیل تخصصی پوزیشن هدف</span>
-                  <span className="text-[10px] text-zinc-400 mt-1 font-semibold leading-relaxed">بررسی شانس فاند و پذیرش متناسب با معدل و رزومه تحصیلی به همراه پایش خلاء رزومه.</span>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-2.5 bg-white p-3.5 rounded-xl border border-zinc-200/80 w-full hover:border-zinc-300 transition-colors">
-                <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-                  <Compass className="w-4 h-4 text-blue-600" />
-                </div>
-                <div className="flex flex-col text-right">
-                  <span className="text-xs font-bold text-zinc-800">تعیین سناریوی مناسب سفارت</span>
-                  <span className="text-[10px] text-zinc-400 mt-1 font-semibold leading-relaxed">هماهنگی پرونده‌های ریجکت‌شده قبلی و بهینه‌سازی نحوه ابراز انگیزه بازگشت.</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-2 text-[9px] text-zinc-400 flex items-center gap-1.5 font-semibold justify-center sm:justify-start">
-              <ShieldAlert className="w-3.5 h-3.5 text-zinc-405" />
-              <span>پایگاه اطلاعاتی کاملاً امن لوکال مجهز به رمزنگاری پیشرفته علمی</span>
-            </div>
-          </motion.div>
-
-          {/* Left Column - Submissions Form with offline queue status indicator */}
-          <motion.div 
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="lg:col-span-6"
-          >
-            <div className="bg-white border border-zinc-200 rounded-2xl p-5 md:p-6 shadow-xs">
-              
-              <h3 className="text-xs font-bold text-zinc-900 mb-5 border-b border-zinc-100 pb-2.5">درخواست ارزیابی و مشاوره رایگان</h3>
-
-              {submitSuccess ? (
-                /* Success banner with detailed local offline log explanation */
-                <div className="text-center py-6 space-y-3">
-                  <div className="w-10 h-10 bg-emerald-50 text-emerald-600 border border-emerald-150 rounded-full flex items-center justify-center mx-auto">
-                    <CheckCircle className="w-5 h-5" />
-                  </div>
-                  <h4 className="text-xs font-bold text-zinc-900">درخواست شما ثبت گردید</h4>
-                  <p className="text-[10px] text-zinc-400 max-w-sm mx-auto leading-relaxed font-semibold">
-                    مشخصات شما با موفقیت ذخیره شد. مشاورین ما به زودی و در کمتر از ۲ ساعت کاری جهت هماهنگی مصاحبه تعیین سطح با شما تماس خواهند گرفت.
+    <section id="consulting-section" className="apple-section">
+      <div className="apple-full-container">
+        <div className="apple-card overflow-hidden p-3 lg:p-4">
+          <div className="grid gap-3 lg:grid-cols-[1.08fr_0.92fr]">
+            <motion.div
+              initial={{ opacity: 0, y: 18 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-80px' }}
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+              className="relative min-h-[520px] overflow-hidden rounded-[34px] bg-[#1d1d1f] p-7 text-white lg:p-10"
+            >
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_24%_18%,rgba(0,113,227,0.42),transparent_35%),radial-gradient(circle_at_72%_70%,rgba(255,255,255,0.13),transparent_34%)]" />
+              <div className="relative flex h-full flex-col justify-between">
+                <div>
+                  <span className="inline-flex items-center gap-2 rounded-full bg-white/12 px-3 py-2 text-xs font-black text-white/75">
+                    <Sparkles size={14} />
+                    شروع با یک تماس
+                  </span>
+                  <h2 className="mt-7 max-w-3xl text-[clamp(2.7rem,6vw,6.4rem)] font-black leading-[0.96] tracking-[-0.065em]">
+                    مسیرت را
+                    <br />
+                    مشخص کنیم.
+                  </h2>
+                  <p className="mt-6 max-w-xl text-sm font-bold leading-8 text-white/62 lg:text-base">
+                    فقط اطلاعات ضروری؛ تیم مشاوره، دوره مناسب و قدم بعدی را پیشنهاد می‌دهد.
                   </p>
-                  <p className="text-[9px] text-amber-700 bg-amber-50 border border-amber-200 p-1.5 rounded-lg max-w-sm mx-auto font-mono tracking-wider font-semibold">
-                    درخواست شما در سیستم آفلاین ذخیره علمی شد
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-3">
+                  {[
+                    { icon: Compass, title: 'هدف', text: 'تحصیل/کار/پزشکی' },
+                    { icon: Route, title: 'مسیر', text: 'برنامه کوتاه' },
+                    { icon: ShieldCheck, title: 'امن', text: 'بدون تغییر بک‌اند' },
+                  ].map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <div key={item.title} className="rounded-[24px] bg-white/10 p-4 backdrop-blur-xl">
+                        <Icon size={19} className="text-white/85" />
+                        <p className="mt-4 text-sm font-black">{item.title}</p>
+                        <p className="mt-1 text-[11px] font-bold text-white/55">{item.text}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.form
+              initial={{ opacity: 0, y: 18 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-80px' }}
+              transition={{ duration: 0.8, delay: 0.06, ease: [0.16, 1, 0.3, 1] }}
+              onSubmit={handleFormSubmit}
+              className="rounded-[34px] bg-white p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)] lg:p-7"
+            >
+              {submitSuccess ? (
+                <div className="flex min-h-[500px] flex-col items-center justify-center text-center">
+                  <span className="grid size-20 place-items-center rounded-[28px] bg-emerald-50 text-emerald-600">
+                    <CheckCircle2 size={38} />
+                  </span>
+                  <h3 className="mt-6 text-3xl font-black tracking-[-0.05em] text-[#1d1d1f]">ثبت شد.</h3>
+                  <p className="mt-3 max-w-sm text-sm font-bold leading-7 text-[#6e6e73]">
+                    درخواستت ذخیره شد. مشاور برای هماهنگی قدم بعدی تماس می‌گیرد.
                   </p>
                 </div>
               ) : (
-                <form onSubmit={handleFormSubmit} className="space-y-3.5">
-                  
-                  {/* Name field */}
-                  <div className="space-y-1">
-                    <label className="text-[10px] text-zinc-400 font-bold block">نام و نام خانوادگی <span className="text-rose-600">*</span></label>
-                    <div className="relative flex items-center">
-                      <span className="absolute right-3.5 text-zinc-400"><User className="w-4 h-4" /></span>
+                <>
+                  <div className="mb-6">
+                    <h3 className="text-3xl font-black tracking-[-0.05em] text-[#1d1d1f]">فرم سریع</h3>
+                    <p className="mt-2 text-sm font-bold text-[#6e6e73]">کمتر از ۴۵ ثانیه.</p>
+                  </div>
+
+                  <div className="space-y-4">
+                    <label className="block">
+                      <span className="mb-2 flex items-center gap-2 text-xs font-black text-[#1d1d1f]"><UserRound size={14} /> نام کامل</span>
+                      <input value={name} onChange={(event) => setName(event.target.value)} className="apple-field" placeholder="مثلاً پدرام شمس" required />
+                    </label>
+
+                    <label className="block">
+                      <span className="mb-2 flex items-center gap-2 text-xs font-black text-[#1d1d1f]"><Phone size={14} /> موبایل</span>
                       <input
-                        type="text"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        placeholder="مثال: پدرام شمس"
-                        className="w-full bg-zinc-50 border border-zinc-200 focus:border-zinc-300 focus:bg-white rounded-full pr-10 pl-3.5 py-1.5 text-xs text-zinc-800 placeholder-zinc-400 transition-colors outline-none font-semibold text-right"
+                        value={phoneNumber}
+                        onChange={(event) => setPhoneNumber(event.target.value.replace(/\D/g, ''))}
+                        className="apple-field text-left tracking-wider"
+                        placeholder="9123456789"
+                        dir="ltr"
                         required
                       />
-                    </div>
-                  </div>
+                    </label>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                    {/* Phone field */}
-                    <div className="space-y-1">
-                      <label className="text-[10px] text-zinc-400 font-bold block">شماره تلفن همراه <span className="text-rose-600">*</span></label>
-                      <div className="relative flex items-center">
-                        <span className="absolute right-3.5 text-zinc-400"><Smartphone className="w-4 h-4" /></span>
-                        <input
-                          type="tel"
-                          value={phoneNumber}
-                          onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ''))}
-                          placeholder="مثال: 9123456789"
-                          className="w-full bg-zinc-50 border border-zinc-200 focus:border-zinc-300 focus:bg-white rounded-full pr-10 pl-3.5 py-1.5 text-xs text-zinc-800 placeholder-zinc-400 transition-colors outline-none text-left tracking-wider font-semibold"
-                          dir="ltr"
-                          required
-                        />
+                    <label className="block">
+                      <span className="mb-2 flex items-center gap-2 text-xs font-black text-[#1d1d1f]"><Mail size={14} /> ایمیل اختیاری</span>
+                      <input value={email} onChange={(event) => setEmail(event.target.value)} className="apple-field text-left" placeholder="name@mail.com" dir="ltr" />
+                    </label>
+
+                    <div>
+                      <span className="mb-2 block text-xs font-black text-[#1d1d1f]">مسیرت کدام است؟</span>
+                      <div className="grid grid-cols-4 gap-2">
+                        {pathwayOptions.map((option) => (
+                          <button
+                            key={option.value}
+                            type="button"
+                            onClick={() => setPathway(option.value)}
+                            className={`rounded-2xl px-2 py-3 text-xs font-black transition-all duration-300 ${pathway === option.value ? 'bg-[#0071e3] text-white shadow-lg shadow-blue-500/20' : 'bg-[#f5f5f7] text-[#6e6e73] hover:bg-zinc-100'}`}
+                          >
+                            {option.label}
+                          </button>
+                        ))}
                       </div>
                     </div>
 
-                    {/* Email field */}
-                    <div className="space-y-1">
-                      <label className="text-[10px] text-zinc-405 font-medium block">نشانی ایمیل <span className="text-zinc-400 text-[8px]">(اختیاری)</span></label>
-                      <div className="relative flex items-center">
-                        <span className="absolute right-3.5 text-zinc-400"><Mail className="w-4 h-4" /></span>
-                        <input
-                          type="email"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          placeholder="yourname@mail.com"
-                          className="w-full bg-zinc-50 border border-zinc-200 focus:border-zinc-300 focus:bg-white rounded-full pr-10 pl-3.5 py-1.5 text-xs text-zinc-800 placeholder-zinc-400 transition-colors outline-none text-left font-semibold"
-                          dir="ltr"
-                        />
-                      </div>
-                    </div>
+                    <label className="block">
+                      <span className="mb-2 block text-xs font-black text-[#1d1d1f]">سطح زبان</span>
+                      <select value={englishLevel} onChange={(event) => setEnglishLevel(event.target.value)} className="apple-field cursor-pointer appearance-none">
+                        <option>مبتدی (A1/A2)</option>
+                        <option>متوسط (B1/B2)</option>
+                        <option>پیشرفته (C1/C2)</option>
+                      </select>
+                    </label>
                   </div>
 
-                  {/* Pathway field selector */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                    <div className="space-y-1">
-                      <label className="text-[10px] text-zinc-400 font-bold block">مسیر ترجیحی اعزام به آمریکا</label>
-                      <select
-                        value={pathway}
-                        onChange={(e: any) => setPathway(e.target.value)}
-                        className="w-full bg-zinc-50 border border-zinc-200 focus:border-zinc-300 focus:bg-white rounded-full px-3.5 py-1.5 text-xs text-zinc-700 outline-none font-semibold cursor-pointer appearance-none text-right"
-                      >
-                        <option value="study" className="font-semibold">تحصیلی و فاند (F1)</option>
-                        <option value="work" className="font-semibold">کاری و نخبگی (H1B/O1)</option>
-                        <option value="medical" className="font-semibold">کادر درمان و معادل‌سازی (USMLE)</option>
-                        <option value="other" className="font-semibold">توریستی و سایر (B1/B2)</option>
-                      </select>
-                    </div>
+                  {errorMsg && <p className="mt-4 rounded-2xl bg-rose-50 px-4 py-3 text-xs font-black text-rose-600">{errorMsg}</p>}
 
-                    {/* level selection */}
-                    <div className="space-y-1">
-                      <label className="text-[10px] text-zinc-400 font-bold block">برآورد شما از سطح زبان خودتان</label>
-                      <select
-                        value={englishLevel}
-                        onChange={(e) => setEnglishLevel(e.target.value)}
-                        className="w-full bg-zinc-50 border border-zinc-200 focus:border-zinc-300 focus:bg-white rounded-full px-3.5 py-1.5 text-xs text-zinc-700 outline-none font-semibold cursor-pointer appearance-none text-right"
-                      >
-                        <option value="مبتدی (A1/A2)" className="font-semibold">مبتدی (پایه)</option>
-                        <option value="متوسط (B1)" className="font-semibold">متوسط (گفتگوی عمومی)</option>
-                        <option value="پیشرفته (B2/C1)" className="font-semibold">پیشرفته (کامل)</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  {errorMsg && (
-                    <p className="text-rose-700 text-[10px] font-semibold bg-rose-50 border border-rose-200 p-2 rounded-lg text-center">
-                      {errorMsg}
-                    </p>
-                  )}
-
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-[11px] rounded-full flex items-center justify-center gap-1.5 transition-all duration-300 transform active:scale-98 cursor-pointer shadow-xs mt-4"
-                  >
-                    {isSubmitting ? (
-                      <span className="flex items-center gap-1 justify-center">
-                        <div className="w-3.5 h-3.5 border-2 border-white/50 border-t-white rounded-full animate-spin"></div>
-                        در حال ثبت...
-                      </span>
-                    ) : (
-                      <>
-                        <Send className="w-3.5 h-3.5 shrink-0" />
-                        <span>ثبت درخواست ارزیابی رزومه سفارتی</span>
-                      </>
-                    )}
+                  <button type="submit" disabled={isSubmitting} className="apple-button-primary mt-6 h-12 w-full disabled:cursor-not-allowed disabled:opacity-70">
+                    {isSubmitting ? 'در حال ثبت...' : 'ثبت درخواست'}
+                    {!isSubmitting && <ArrowLeft size={16} />}
                   </button>
-
-                </form>
+                </>
               )}
-
-            </div>
-          </motion.div>
-
+            </motion.form>
+          </div>
         </div>
-
       </div>
-    </motion.section>
+    </section>
   );
 }

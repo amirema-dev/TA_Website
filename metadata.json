@@ -1,0 +1,6 @@
+{
+  "name": "ToAmerica Academy",
+  "description": "آکادمی هوشمند و آفلاین-فرست توآمریکا برای آموزش تخصصی زبان سفارتی، بورد کادر درمان USMLE و پوزیشن‌یابی فول‌فاند ایالات متحده همراه با پایداری کامل دیتابیس محلی",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
